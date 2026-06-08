@@ -4,15 +4,17 @@ import numpy as np
 def load_and_clean_data (input_path):
     # Load the dataset
     df = pd.read_csv(input_path)
+    df.columns = df.columns.str.strip()
     # Drop customerID column
-    df = df.drop(columns=['customerID'])
+    df = df.drop('customerID', axis = 1, errors='ignore')
+
 
     # Convert TotalCharges to numeric, coerce errors to NaN
     df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
 
     df['TotalCharges'] = df['TotalCharges'].fillna(0)
 
-    df['churn'] = df['Churn'].apply(lambda x: 1 if x == 'Yes' else 0)
+    df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
     categorical_columns = df.select_dtypes(include=['object']).columns
     df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
     return df_encoded
